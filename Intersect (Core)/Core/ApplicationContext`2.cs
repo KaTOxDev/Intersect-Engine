@@ -2,6 +2,8 @@
 using Intersect.Threading;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using Intersect.Framework.Reflection;
 using Intersect.Properties;
@@ -237,7 +239,14 @@ public abstract partial class ApplicationContext<TContext, TStartupOptions> : IA
         {
             BootstrapServices();
 
-            PackedIntersectPacket.AddKnownTypes(PacketHelper.AvailablePacketTypes);
+            PackedIntersectPacket.AddKnownTypes(
+                PacketHelper.AvailablePacketTypes
+                    .OrderBy(
+                        type => type.GetName(qualified: true),
+                        CultureInfo.InvariantCulture.CompareInfo.GetStringComparer(CompareOptions.Ordinal)
+                    )
+                    .ToList()
+            );
 
             try
             {
